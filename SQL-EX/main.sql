@@ -1039,3 +1039,39 @@ ON T.trip_no = P.trip_no
 JOIN [Company] AS C
 ON C.ID_comp = T.ID_comp
 GROUP BY C.name
+
+
+/*Задание: 98 (qwrqwr: 2010-04-26)
+Вывести список ПК, для каждого из которых результат побитовой операции ИЛИ, примененной к двоичным представлениям 
+скорости процессора и объема памяти, содержит последовательность из не менее четырех идущих подряд единичных битов.
+Вывод: код модели, скорость процессора, объем памяти.*/
+
+select pp.code, pp.speed1, pp.ram from
+(
+SELECT [code] as code
+      ,[speed] as speed1
+      ,[ram] as ram
+	  ,[speed]|[ram] as speed
+from PC
+)  as pp
+where concat(
+      cast(speed%2 as nchar(1))
+	 ,cast(speed/2%2 as nchar(1))
+	 ,cast(speed/4%2 as nchar(1))
+	 ,cast(speed/8%2 as nchar(1))
+	 ,cast(speed/16%2 as nchar(1))
+	 ,cast(speed/32%2 as nchar(1))
+	 ,cast(speed/64%2 as nchar(1))
+	 ,cast(speed/128%2 as nchar(1))
+	 ,cast(speed/256%2 as nchar(1))
+	 ,cast(speed/512%2 as nchar(1))
+	 ,cast(speed/1024%2 as nchar(1))
+	 ,cast(speed/2048%2 as nchar(1))
+	 ,cast(speed/4096%2 as nchar(1))
+	 ,cast(speed/8192%2 as nchar(1))
+     ,cast(speed/16384%2 as nchar(1))
+     ,cast(speed/32768%2 as nchar(1))
+     ,cast(speed/65536%2 as nchar(1))
+     ,cast(speed/131072%2 as nchar(1))
+
+	 ) like '%1111%'

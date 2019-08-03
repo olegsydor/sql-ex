@@ -1,4 +1,6 @@
-﻿/*Задание: 98 (qwrqwr: 2010-04-26)
+﻿
+
+/*Задание: 98 (qwrqwr: 2010-04-26)
 Вывести список ПК, для каждого из которых результат побитовой операции ИЛИ, примененной к двоичным представлениям 
 скорости процессора и объема памяти, содержит последовательность из не менее четырех идущих подряд единичных битов.
 Вывод: код модели, скорость процессора, объем памяти.*/
@@ -68,11 +70,56 @@ OPTION (MAXRECURSION 4500)
 Вывести список ПК, для каждого из которых результат побитовой операции ИЛИ, примененной к двоичным представлениям 
 скорости процессора и объема памяти, содержит последовательность из не менее четырех идущих подряд единичных битов.
 Вывод: код модели, скорость процессора, объем памяти.*/
-/*
-SELECT [code]
-      ,[speed]
-      ,[ram]
-	  ,[speed]|[ram]
-  FROM [dbo].[pc]
-GO
-*/
+
+select pp.code, pp.speed1, pp.ram from
+(
+SELECT [code] as code
+      ,[speed] as speed1
+      ,[ram] as ram
+	  ,[speed]|[ram] as speed
+from PC
+)  as pp
+where concat(
+      cast(speed%2 as nchar(1))
+	 ,cast(speed/2%2 as nchar(1))
+	 ,cast(speed/4%2 as nchar(1))
+	 ,cast(speed/8%2 as nchar(1))
+	 ,cast(speed/16%2 as nchar(1))
+	 ,cast(speed/32%2 as nchar(1))
+	 ,cast(speed/64%2 as nchar(1))
+	 ,cast(speed/128%2 as nchar(1))
+	 ,cast(speed/256%2 as nchar(1))
+	 ,cast(speed/512%2 as nchar(1))
+	 ,cast(speed/1024%2 as nchar(1))
+	 ,cast(speed/2048%2 as nchar(1))
+	 ,cast(speed/4096%2 as nchar(1))
+	 ,cast(speed/8192%2 as nchar(1))
+     ,cast(speed/16384%2 as nchar(1))
+     ,cast(speed/32768%2 as nchar(1))
+     ,cast(speed/65536%2 as nchar(1))
+     ,cast(speed/131072%2 as nchar(1))
+
+	 ) like '%1111%'
+
+
+-- Прекрасно --
+;with cte as (
+    select cast(15 as bigint) as cnt
+    union all
+    select cnt*2 from cte
+    where cnt <= CAST(0x4FFFFFFFFFFFFFFF AS bigint)
+)
+select distinct code, speed, ram 
+from pc join cte on ((speed | ram) & cnt) = cnt
+
+-- Прекрасно 2 --
+WITH
+masks AS (
+  SELECT m=15
+  UNION ALL
+  SELECT m*2
+  FROM masks
+  WHERE m<=15*2048
+)
+SELECT DISTINCT code, speed, ram
+FROM pc JOIN masks ON (speed | ram) & m = m
