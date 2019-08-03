@@ -1075,3 +1075,63 @@ where concat(
      ,cast(speed/131072%2 as nchar(1))
 
 	 ) like '%1111%'
+
+/*
+Задание: 102 (Serge I: 2003-04-29)
+Определить имена разных пассажиров, которые летали
+только между двумя городами (туда и/или обратно).
+*/
+
+SELECT G.name FROM
+(
+SELECT C.ID_psg FROM
+(
+SELECT P.[id_psg]
+      ,T.[town_from]
+  FROM [pass_in_trip] AS P
+  JOIN [trip] AS T
+  ON T.trip_no = P.trip_no
+  GROUP BY P.ID_psg, T.town_from
+  UNION
+SELECT P.[id_psg]
+      ,T.[town_to]
+  FROM [pass_in_trip] AS P
+  JOIN [trip] AS T
+  ON T.trip_no = P.trip_no
+  GROUP BY P.ID_psg, T.town_to
+) AS C
+GROUP BY ID_psg
+HAVING COUNT(C.town_from) <=2
+) AS D
+JOIN [passenger] AS G
+ON G.ID_psg = D.ID_psg
+
+
+/*
+Задание: 103 (qwrqwr: 2013-05-17)
+Выбрать три наименьших и три наибольших номера рейса. Вывести их в шести столбцах одной строки, расположив в порядке от наименьшего к наибольшему. 
+Замечание: считать, что таблица Trip содержит не менее шести строк.
+*/
+
+SELECT [1], [2], [3], [4], [5], [6] FROM  
+(
+SELECT ROW_NUMBER () OVER(ORDER BY C.trip_no) AS NN, C.[trip_no] 
+FROM
+(
+SELECT * FROM
+(SELECT DISTINCT TOP (3) P.[trip_no]
+  FROM [trip] AS P
+  ORDER BY P.[trip_no]) AS A
+  UNION ALL
+SELECT * FROM
+(SELECT DISTINCT TOP (3) P.[trip_no]
+  FROM [trip] AS P
+  ORDER BY P.[trip_no] DESC) AS B
+) AS C)
+AS F
+PIVOT  
+(  
+AVG(F.trip_no)  
+FOR F.NN IN ([1], [2], [3], [4], [5], [6])  
+) AS D
+/* 1857	*/
