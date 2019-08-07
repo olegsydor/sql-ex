@@ -1135,3 +1135,27 @@ AVG(F.trip_no)
 FOR F.NN IN ([1], [2], [3], [4], [5], [6])  
 ) AS D
 /* 1857	*/
+
+/*
+Задание: 104 (Serge I: 2013-07-19)
+Для каждого класса крейсеров, число орудий которого известно, пронумеровать (последовательно от единицы) все орудия.
+Вывод: имя класса, номер орудия в формате 'bc-N'.
+*/
+;WITH Numbs AS 
+(
+SELECT n FROM (VALUES ('0'),('1'),('2'),('3'),('4'),('5'),('6'),('7'),('8'),('9')) AS Something([N])
+)
+SELECT D.class, CONCAT('bc-', F.NUMBERS) FROM
+(
+SELECT CAST((A1.n + A2.n) AS int)+1 AS 'Numbers'
+FROM Numbs AS A1, Numbs AS A2
+) AS F
+CROSS APPLY
+(SELECT DISTINCT C.[class]
+      ,C.[type]
+      ,C.[numGuns]
+  FROM [Classes] AS C
+  WHERE [type] = 'bc'
+) AS D
+WHERE F.Numbers <= D.numGuns
+/* 1803 */
