@@ -45,7 +45,7 @@ GO
 SELECT A1.name, A1.trip_no, A1.date
 FROM
 (
-SELECT RANK() OVER (ORDER BY P.[date], P.[id_psg]) AS NUMB
+SELECT DENSE_RANK() OVER (ORDER BY  P.[id_psg]) AS NUMB
       ,P.[trip_no]
       ,P.[date]
       ,P.[id_psg]
@@ -69,17 +69,18 @@ SELECT P.[trip_no]
   FROM [pass_in_trip] AS P
 JOIN [Trip] AS T
 ON T.trip_no = P.trip_no
---AND T.town_from = 'Rostov'
---AND DATEPART(YEAR, P.date) = 2003
---AND DATEPART(MONTH, P.date) = 4
+AND T.town_from = 'Rostov'
+AND DATEPART(YEAR, P.date) = 2003
+AND DATEPART(MONTH, P.date) = 4
 ORDER BY P.[date]
+ORDER BY P.ID_psg
 
 
 SELECT TOP (1) D.name, D.trip_no, D.date FROM
 (
-SELECT DENSE_RANK() OVER (ORDER BY P.[id_psg]) AS NUMB2
+SELECT /*DENSE_RANK() OVER (PARTITION BY P.[id_psg] ORDER BY P.[date]) AS NUMB2
       ,RANK() OVER (ORDER BY P.[date]) AS NUMB
-      ,P.[trip_no]
+      ,*/P.[trip_no]
       ,P.[date]
       ,P.[id_psg]
       ,P.[place]
@@ -92,6 +93,7 @@ AND DATEPART(YEAR, P.date) = 2003
 AND DATEPART(MONTH, P.date) = 4
 JOIN [Company] AS C
 ON C.ID_comp = T.ID_comp
+ORDER BY P.date
 ) AS D
 WHERE D.NUMB = 5
 ORDER BY NUMB2 DESC
@@ -107,3 +109,14 @@ AND DATEPART(YEAR, P.date) = 2003
 AND DATEPART(MONTH, P.date) = 4
 JOIN [Company] AS C
 ON C.ID_comp = T.ID_comp
+
+
+select distinct p.[id_psg] from [Pass_in_trip] as p
+left join [Trip] as t
+on t.trip_no = p.trip_no
+AND T.town_from = 'Rostov'
+AND DATEPART(YEAR, P.date) = 2003
+AND DATEPART(MONTH, P.date) = 4
+JOIN [Company] AS C
+ON C.ID_comp = T.ID_comp
+order by p.date

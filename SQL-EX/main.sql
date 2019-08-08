@@ -1189,3 +1189,23 @@ FROM
 ) AS P
 
 /* 1738 */
+
+
+/*
+Задание: 110 (Serge I: 2003-12-24)
+Определить имена разных пассажиров, когда-либо летевших рейсом, который вылетел в субботу, а приземлился в воскресенье.
+*/
+
+SELECT P1.name FROM (
+SELECT DISTINCT G.ID_psg
+FROM [Trip] AS T
+JOIN [Pass_in_trip] AS P
+ON P.trip_no = T.trip_no
+JOIN [Passenger] AS G
+ON G.ID_psg = P.ID_psg
+AND T.time_in < T.time_out
+AND  DATEPART(DW, P.date) = DATEPART(DW, '20190810')
+) AS A
+JOIN Passenger AS P1
+ON P1.ID_psg = A.ID_psg
+/* 1658 */
